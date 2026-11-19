@@ -55,11 +55,20 @@ class CustomRequestHandler(SimpleHTTPRequestHandler):
             else:
                 self.list_directory(path)
 
-def start_server(port, directory):
+def start_server(host, port, directory):
     os.chdir(directory)
-    server_address = ('172.30.169.26', port)
+    server_address = (host, port)
     httpd = TCPServer(server_address, CustomRequestHandler)
-    print(f"Servidor rodando em 172.30.169.26:{port}")
+    print(f"Servidor rodando em http://{host}:{port} servindo '{directory}'")
     httpd.serve_forever()
 
-start_server(8000, '/home/leonardopj')
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Servidor HTTP simples para listar e baixar arquivos.')
+    parser.add_argument('--host', default='127.0.0.1', help='endereço IP do servidor (padrão: 127.0.0.1)')
+    parser.add_argument('--port', type=int, default=8000, help='porta do servidor (padrão: 8000)')
+    parser.add_argument('--dir', default='.', help='diretório a ser servido (padrão: diretório atual)')
+    args = parser.parse_args()
+
+    start_server(args.host, args.port, os.path.abspath(args.dir))
